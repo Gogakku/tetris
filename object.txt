@@ -1,0 +1,60 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using OpenTK;
+using OpenTK.Graphics.OpenGL;
+
+namespace Tetris
+{
+    class GameObject : IDisposable
+    {
+        private int vertexBufferId;
+        public float[] vertexData;
+        public Grafika texture;
+        public Vector2 Position { get; set; }
+        public int Width, Height;
+
+        public GameObject(int width, int height, Vector2 position, string filename)
+        {
+            texture = new Grafika(filename);
+            Position = position;
+            Width = width;
+            Height = height;
+            vertexBufferId = GL.GenBuffer();
+            SetBuffer();
+        }
+        private void SetBuffer()
+        {
+            vertexData = new float[]
+            {
+                0.0f+Position.X,    0.0f+Position.Y,    0.0f,
+                Width+Position.X,   0.0f+Position.Y,    0.0f,
+                Width+Position.X,   Height+Position.Y,  0.0f,
+                0.0f+Position.X,    Height+Position.Y,  0.0f
+            };
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferId);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertexData.Length * sizeof(float), vertexData, BufferUsageHint.StaticDraw);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+        }
+        public void Draw()
+        {
+            GL.EnableClientState(ArrayCap.VertexArray);
+            GL.EnableClientState(ArrayCap.TextureCoordArray);
+            texture.Bind();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferId);
+            GL.VertexPointer(3, VertexPointerType.Float, 0, 0);
+            GL.DrawArrays(PrimitiveType.Quads, 0, vertexData.Length);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            texture.Unbind();
+            GL.DisableClientState(ArrayCap.VertexArray);
+            GL.DisableClientState(ArrayCap.TextureCoordArray); 
+        }
+        public void Dispose()
+        {
+            texture?.Dispose();
+            GL.DeleteBuffer(vertexBufferId);
+        }
+    }
+}

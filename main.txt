@@ -1,0 +1,425 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using OpenTK;
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
+using OpenTK.Input;
+using System.Drawing;
+
+namespace Tetris
+{
+    class MainGame : GameWindow
+    {
+        private int[,] Map = new int[,]{
+        { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+        { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
+        { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
+        { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+        { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+        { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+        { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+        { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+        { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+        { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+        { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+        { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+        { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+        { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+        { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+        { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+        { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
+        public Random Rand = new Random();
+        public int coint;
+        private Matrix4 Projection;
+        private int ReadyNextFigure = 1;
+        private int CheckMoveDown = 1;
+        private int CheakMoveLeft = 1;
+        private int CheakMoveRight = 1;
+        private int[,] Figure = new int[,] { };
+        private int[,] NextFigure = new int[,] { };
+        private int FigurePositionX = 0;
+        private int FigurePositionY = 5;
+        private int x = 0;
+        private int y = 0;
+        private Color4[] Colors = { Color4.Red, Color4.Blue, Color4.Black, Color4.Green, Color4.Blue };
+        public GameObject[] coint010 = new GameObject[10];
+        public GameObject[] coint100 = new GameObject[10];
+        public GameObject coint001;
+        public GameObject win;
+        public GameObject lose;
+
+        public MainGame(int width, int height, string title) : base(width, height, GraphicsMode.Default, title, GameWindowFlags.FixedWindow)
+        {
+            Width = width;
+            Height = height;
+            Title = title;
+            GL.Enable(EnableCap.Texture2D);
+            coint001 = new GameObject(50, 50, new Vector2(755, 55), @"0.bmp");
+            coint010[0] = new GameObject(50, 50, new Vector2(700, 55), @"0.bmp");
+            coint010[1] = new GameObject(50, 50, new Vector2(700, 55), @"1.bmp");
+            coint010[2] = new GameObject(50, 50, new Vector2(700, 55), @"2.bmp");
+            coint010[3] = new GameObject(50, 50, new Vector2(700, 55), @"3.bmp");
+            coint010[4] = new GameObject(50, 50, new Vector2(700, 55), @"4.bmp");
+            coint010[5] = new GameObject(50, 50, new Vector2(700, 55), @"5.bmp");
+            coint010[6] = new GameObject(50, 50, new Vector2(700, 55), @"6.bmp");
+            coint010[7] = new GameObject(50, 50, new Vector2(700, 55), @"7.bmp");
+            coint010[8] = new GameObject(50, 50, new Vector2(700, 55), @"8.bmp");
+            coint010[9] = new GameObject(50, 50, new Vector2(700, 55), @"9.bmp");
+            coint100[0] = new GameObject(50, 50, new Vector2(645, 55), @"0.bmp");
+            coint100[1] = new GameObject(50, 50, new Vector2(645, 55), @"1.bmp");
+            coint100[2] = new GameObject(50, 50, new Vector2(645, 55), @"2.bmp");
+            coint100[3] = new GameObject(50, 50, new Vector2(645, 55), @"3.bmp");
+            coint100[4] = new GameObject(50, 50, new Vector2(645, 55), @"4.bmp");
+            coint100[5] = new GameObject(50, 50, new Vector2(645, 55), @"5.bmp");
+            coint100[6] = new GameObject(50, 50, new Vector2(645, 55), @"6.bmp");
+            coint100[7] = new GameObject(50, 50, new Vector2(645, 55), @"7.bmp");
+            coint100[8] = new GameObject(50, 50, new Vector2(645, 55), @"8.bmp");
+            coint100[9] = new GameObject(50, 50, new Vector2(645, 55), @"9.bmp");
+            lose = new GameObject(400, 150, new Vector2(150, 200), @"Lose.bmp");
+            win = new GameObject(400, 150, new Vector2(150, 200), @"Win.bmp");
+            CreateFigure();
+        }
+        public void CreateFigure()
+        {
+            switch (Rand.Next(8))
+            {
+                case 0: NextFigure = new int[,] { { 0, 0, 0, 0 }, { 3, 3, 3, 3 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } }; break;
+                case 1: NextFigure = new int[,] { { 0, 0, 0, 0 }, { 0, 3, 3, 3 }, { 0, 0, 3, 0 }, { 0, 0, 0, 0 } }; break;
+                case 2: NextFigure = new int[,] { { 0, 0, 0, 0 }, { 3, 3, 3, 0 }, { 0, 0, 3, 0 }, { 0, 0, 0, 0 } }; break;
+                case 3: NextFigure = new int[,] { { 0, 0, 0, 0 }, { 3, 3, 0, 0 }, { 0, 3, 3, 0 }, { 0, 0, 0, 0 } }; break;
+                case 4: NextFigure = new int[,] { { 0, 0, 0, 0 }, { 0, 3, 3, 0 }, { 0, 3, 3, 0 }, { 0, 0, 0, 0 } }; break;
+                case 5: NextFigure = new int[,] { { 0, 0, 0, 0 }, { 3, 3, 3, 0 }, { 3, 0, 0, 0 }, { 0, 0, 0, 0 } }; break;
+                case 6: NextFigure = new int[,] { { 0, 0, 0, 0 }, { 0, 3, 3, 0 }, { 3, 3, 0, 0 }, { 0, 0, 0, 0 } }; break;
+                case 7: NextFigure = new int[,] { { 0, 0, 0, 0 }, { 0, 3, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } }; break;
+            }
+        }
+        public void MoveDown()
+        {
+            CheckMove();
+            for (int i = 0; i < 17; i++)
+            {
+                for (int j = 0; j < 16; j++)
+                {
+                    if (Map[i, j] == 3)
+                        Map[i, j] = 0;
+                }
+            }
+            if (CheckMoveDown == 1)
+            {
+                FigurePositionX++;
+                for (int i = FigurePositionX; i < FigurePositionX + 4; i++)
+                {
+                    for (int j = FigurePositionY; j < FigurePositionY + 4; j++)
+                    {
+                        if (Figure[i - FigurePositionX, j - FigurePositionY] == 3)
+                            Map[i, j] = Figure[i - FigurePositionX, j - FigurePositionY];
+                    }
+                }
+                CheckMove();
+            }
+            if (CheckMoveDown == 0)
+            {
+                for (int i = FigurePositionX; i < FigurePositionX + 4; i++)
+                {
+                    for (int j = FigurePositionY; j < FigurePositionY + 4; j++)
+                    {
+                        if (Figure[i - FigurePositionX, j - FigurePositionY] == 3)
+                        {
+                            Map[i, j] = 2;
+                            ReadyNextFigure = 1;
+                        }
+                        if(FigurePositionX == 0)
+                        {
+                            ReadyNextFigure = 0;
+                            CheakMoveRight = 0;
+                            CheakMoveLeft = 0;
+                            LoseOrWinner();
+                        }
+                    }
+                }
+                FigurePositionX = 0;
+                FigurePositionY = 5;
+            }
+        }
+        public void UpdateFgure()
+        {
+            for (int i = 0; i < 17; i++)
+            {
+                for (int j = 0; j < 16; j++)
+                {
+                    if (Map[i, j] == 3)
+                        Map[i, j] = 0;
+
+                }
+            }
+            for (int i = FigurePositionX; i < FigurePositionX + 4; i++)
+            {
+                for (int j = FigurePositionY; j < FigurePositionY + 4; j++)
+                {
+                    if (Figure[i - FigurePositionX, j - FigurePositionY] == 3)
+                        Map[i, j] = Figure[i - FigurePositionX, j - FigurePositionY];
+                }
+            }
+        }
+        public void KeyBoard()
+        {
+            KeyboardState keyboard = Keyboard.GetState();
+
+            if (keyboard.IsKeyDown(Key.Left) && (FigurePositionY > 0))
+            {
+                CheckMove();
+                if (CheakMoveLeft == 1)
+                    FigurePositionY--;
+                UpdateFgure();
+            }
+            if (keyboard.IsKeyDown(Key.A) && (FigurePositionY > 0))
+            {
+                CheckMove();
+                if (CheakMoveLeft == 1)
+                    FigurePositionY--;
+                UpdateFgure();
+            }
+            if (keyboard.IsKeyDown(Key.Right) && (FigurePositionY < 15))
+            {
+                CheckMove();
+                if (CheakMoveRight == 1)
+                    FigurePositionY++;
+                UpdateFgure();
+            }
+            if (keyboard.IsKeyDown(Key.D) && (FigurePositionY < 15))
+            {
+                CheckMove();
+                if (CheakMoveRight == 1)
+                    FigurePositionY++;
+                UpdateFgure();
+            }
+            if (keyboard.IsKeyDown(Key.Down) && (FigurePositionX < 16))
+            {
+                FigurePositionX++;
+                UpdateFgure();
+            }
+            if (keyboard.IsKeyDown(Key.S) && (FigurePositionX < 16))
+            {
+                FigurePositionX++;
+                UpdateFgure();
+            }
+            if (keyboard.IsKeyDown(Key.Space))
+            {
+                int povorot = 1;
+                int str = Figure.GetLength(0);
+                int stlb = Figure.GetLength(1);
+                int[,] new_mas = new int[stlb, str];
+                for (int i = 0; i < str; i++)
+                {
+                    for (int j = 0; j < stlb; j++)
+                    {
+                        new_mas[j, str - i - 1] = Figure[i, j];
+                    }
+                }
+                for (int i = 0; i < 4; i++)
+                {
+                    for (int j = 0; j < 4; j++)
+                    {
+                        if ((Map[i + FigurePositionX, j + FigurePositionY] == 1 || (Map[i + FigurePositionX, j + FigurePositionY] == 2) && new_mas[i, j] == 3))
+                        {
+                            povorot = 0;
+                        }
+                    }
+                }
+                if (povorot == 1)
+                {
+                    for (int i = 0; i < str; i++)
+                    {
+                        for (int j = 0; j < stlb; j++)
+                        {
+                            Figure[i, j] = new_mas[i, j];
+                        }
+                    }
+                }
+                UpdateFgure();
+            }
+        }
+        public void CheckMove()
+        {
+            for (int i = FigurePositionX; i < FigurePositionX + 4; i++)
+            {
+                for (int j = FigurePositionY; j < FigurePositionY + 4; j++)
+                {
+                    
+                    if (Map[i, j] == 3 && (Map[i, j - 1] == 1 || Map[i, j - 1] == 2))
+                    { CheakMoveLeft = 0; }
+                    if (Map[i, j] == 3 && (Map[i, j + 1] == 1 || Map[i, j + 1] == 2))
+                    { CheakMoveRight = 0; }
+                    if (Map[i, j] == 3 && (Map[i + 1, j] == 1 || Map[i + 1, j] == 2))
+                    { CheckMoveDown = 0; }
+                }
+            }
+        }
+        public void DelLine()
+        {
+            int del;
+            int delLine = 0;
+
+            for (int i = 0; i < 17; i++)
+            {
+                del = 0;
+                for (int j = 3; j < 15; j++)
+                {
+                    if (Map[i, j] == 2)
+                        del++;
+                }
+                if (del == 12)
+                {
+                    delLine++;
+                    for (int a = 3; a < 15; a++)
+                    {
+                        Map[i, a] = 0;
+                    }
+                    for (int m = i; m >= 1; m--)
+                    {
+                        for (int k = 3; k < 15; k++)
+                        {
+                            Map[m, k] = Map[m - 1, k];
+                            Map[m - 1, k] = 0;
+                        }
+                    }
+                }
+            }
+            coint += (delLine * 10);
+        }
+        public void ShowCoint()
+        {
+            int coint1 = coint / 100;
+            int coint2 = (coint / 10) % 10;
+
+            coint001.Draw();
+            coint010[coint2].Draw();
+            coint100[coint1].Draw();
+
+        }
+        public void LoseOrWinner()
+        {
+            if(FigurePositionX == 0)
+            {
+                lose.Draw();
+            }
+            if(coint == 40)
+            {
+                win.Draw();
+                ReadyNextFigure = 0;
+                CheakMoveRight = 0;
+                CheakMoveLeft = 0;
+            }
+        }
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+        }
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            GL.Viewport(0, 0, Width, Height);
+            Projection = Matrix4.CreateOrthographicOffCenter(0, Width, Height, 0, -1, 1);
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadMatrix(ref Projection);
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.LoadIdentity();
+
+        }
+        protected override void OnUpdateFrame(FrameEventArgs e)
+        {
+            base.OnUpdateFrame(e);
+
+            if (ReadyNextFigure == 1)
+            {
+                Figure = NextFigure;
+                CreateFigure();
+                ReadyNextFigure = 0;
+                CheckMoveDown = 1;
+                for (int i = 0; i < 4; i++)
+                {
+                    for (int j = 5; j < 9; j++)
+                    {
+                        if (Figure[i, j - FigurePositionY] == 3)
+                            Map[i, j] = Figure[i, j - FigurePositionY];
+                    }
+                }
+            }
+            if (ReadyNextFigure == 0)
+            {
+                MoveDown();
+            }
+            CheckMove();
+            if (ReadyNextFigure == 0 && CheckMoveDown == 1)
+            { 
+                KeyBoard(); 
+            }
+
+            KeyboardState keyboard = Keyboard.GetState();
+            if (keyboard.IsKeyDown(Key.Escape))
+            { 
+                Close(); 
+            }
+            if (keyboard.IsKeyDown(Key.Enter))
+            {
+                for (int i = 0; i < 17; i++)
+                {
+                    for (int j = 0; j < 16; j++)
+                    {
+                        if (Map[i, j] == 3 || Map[i, j] == 2)
+                        {
+                            Map[i, j] = 0;
+                        }
+                    }
+                }
+                coint = 0;
+                FigurePositionX = 0;
+                FigurePositionY = 5;
+                CheakMoveLeft = 1;
+                CheakMoveRight = 1;
+                CheckMoveDown = 1;
+
+            }
+            CheakMoveLeft = 1;
+            CheakMoveRight = 1;
+            DelLine();
+            LoseOrWinner();
+        }
+        protected override void OnRenderFrame(FrameEventArgs e)
+        {
+            base.OnRenderFrame(e);
+
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.ClearColor(Color4.White);
+            for (int i = 0; i < 17; i++)
+            {
+                for (int j = 0; j < 21; j++)
+                {
+                    x = j * 40;
+                    y = i * 40;
+                    if (Map[i, j] != 0)
+                    {
+                        GL.Begin(PrimitiveType.Quads);
+                        GL.Color4(Colors[Map[i, j]]);
+                        GL.Vertex2(0 + x, 30 + y);
+                        GL.Vertex2(30 + x, 30 + y);
+                        GL.Vertex2(30 + x, 0 + y);
+                        GL.Vertex2(0 + x, 0 + y);
+                        GL.End();
+                    }
+                }
+            }           
+            if(coint == 40 || (ReadyNextFigure == 0 && FigurePositionX == 0 && CheckMoveDown == 0))
+            {
+                LoseOrWinner();
+            }
+            ShowCoint();
+            SwapBuffers();
+        }
+    }
+}
+  
